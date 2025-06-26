@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Rubik Cube</title>
+</head>
+<body>
+  <div id="cubeContainer"></div>
+  <button onclick="rotateCube('U')">Rotate Up</button>
+  <button onclick="rotateCube('R')">Rotate Right</button>
+  <button onclick="rotateCube('F')">Rotate Front</button>
+
+  <script>
+    // getCubeSvg() function
+   
+   function getCubeSvg(cube) {
+        const size = 30; // Each square size
+        const facePositions = {
+            U: [size * 3, 0],
+            L: [0, size * 3],
+            F: [size * 3, size * 3],
+            R: [size * 6, size * 3],
+            B: [size * 9, size * 3],
+            D: [size * 3, size * 6],
+        };
+
+        const colorMap = {
+            R: 'red', O: 'orange', Y: 'yellow', W: 'white',
+            G: 'green', B: 'blue'
+        };
+
+        let svg = `<svg width="360" height="360" style="border:1px solid #ccc">`;
+
+        for (const face in cube) {
+            const [offsetX, offsetY] = facePositions[face];
+            for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                const color = colorMap[cube[face][i][j]];
+                svg += `<rect x="${offsetX + j * size}" y="${offsetY + i * size}" width="${size}" height="${size}" fill="${color}" stroke="black"/>`;
+            }
+            }
+        }
+        svg += `</svg>`;
+        return svg;
+        }
+
+    let cubeState = {
+        U: [['Y', 'Y', 'Y'], ['Y', 'Y', 'Y'], ['Y', 'Y', 'Y']], // Up - Yellow
+        D: [['W', 'W', 'W'], ['W', 'W', 'W'], ['W', 'W', 'W']], // Down - White
+        F: [['R', 'R', 'R'], ['R', 'R', 'R'], ['R', 'R', 'R']], // Front - Red
+        B: [['O', 'O', 'O'], ['O', 'O', 'O'], ['O', 'O', 'O']], // Back - Orange
+        L: [['G', 'G', 'G'], ['G', 'G', 'G'], ['G', 'G', 'G']], // Left - Green
+        R: [['B', 'B', 'B'], ['B', 'B', 'B'], ['B', 'B', 'B']], // Right - Blue
+        };
+
+    function renderCube() {
+        const cubeContainer = document.getElementById('cubeContainer');
+        cubeContainer.innerHTML = getCubeSvg(cubeState);
+    }
+    function rotateFaceClockwise(face) {
+    const newFace = [];
+    for (let i = 0; i < 3; i++) {
+        newFace[i] = [];
+        for (let j = 0; j < 3; j++) {
+        newFace[i][j] = cubeState[face][2 - j][i];
+        }
+    }
+    cubeState[face] = newFace;
+    }
+
+    function rotateU() {
+        rotateFaceClockwise('U');
+
+        const temp = [...cubeState.F[0]];
+        cubeState.F[0] = [...cubeState.R[0]];
+        cubeState.R[0] = [...cubeState.B[0]];
+        cubeState.B[0] = [...cubeState.L[0]];
+        cubeState.L[0] = temp;
+        }
+
+    function rotateR() {
+        rotateFaceClockwise('R');
+
+        const temp = [cubeState.U[0][2], cubeState.U[1][2], cubeState.U[2][2]];
+        for (let i = 0; i < 3; i++) {
+            cubeState.U[i][2] = cubeState.F[i][2];
+            cubeState.F[i][2] = cubeState.D[i][2];
+            cubeState.D[i][2] = cubeState.B[2 - i][0];
+            cubeState.B[2 - i][0] = temp[i];
+        }
+    }
+
+function rotateF() {
+  rotateFaceClockwise('F');
+
+  const temp = [...cubeState.U[2]];
+
+  for (let i = 0; i < 3; i++) {
+    cubeState.U[2][i] = cubeState.L[2 - i][2];
+    cubeState.L[2 - i][2] = cubeState.D[0][2 - i];
+    cubeState.D[0][2 - i] = cubeState.R[i][0];
+    cubeState.R[i][0] = temp[i];
+  }
+}
+
+function rotateCube(face) {
+  console.log("Rotating " + face);
+  if (face === 'U') rotateU();
+  if (face === 'R') rotateR();
+  if (face === 'F') rotateF();
+  renderCube();
+}
+    renderCube();
+  </script>
+</body>
+</html>
